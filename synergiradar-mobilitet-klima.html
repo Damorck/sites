@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Synergiradar – Datakilder til mobilitet, trafik og CO2-reduktion</title>
+<style>
+  :root {
+    --dark: #1f3b26;
+    --text: #2b2b2b;
+    --muted: #5a5a5a;
+    --bg: #f6f8f5;
+    --card: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Calibri, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 30px 16px 60px;
+  }
+  .wrap { max-width: 1400px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 4px; }
+  header h1 { font-size: 28px; margin: 0; color: var(--dark); letter-spacing: 0.3px; }
+
+  .chart-card {
+    background: var(--card);
+    border-radius: 16px;
+    box-shadow: 0 2px 18px rgba(0,0,0,0.07);
+    padding: 16px 16px 4px;
+    margin-top: 16px;
+  }
+  svg { width: 100%; height: auto; display: block; }
+
+  .half-label { font-size: 20px; font-weight: 700; fill: #45624a; letter-spacing: 2px; }
+  .leader { stroke: #c3cec0; stroke-width: 1.2; }
+  .leader.thin { stroke: #dbe3d8; stroke-width: 1; }
+  .item-label { font-size: 14px; fill: #2b2b2b; cursor: pointer; }
+  .item-label:hover { fill: #1f3b26; font-weight: 700; }
+  .dot { stroke: #ffffff; stroke-width: 2; cursor: pointer; }
+  .dot.ring1 { fill: #6f8f6b; }
+  .dot.ring2 { fill: #4f7d4a; }
+  .dot.ring3 { fill: #2f6e33; }
+  .dot.bridge { stroke: #c9962c; stroke-width: 3.2; }
+  .item.active .item-label { fill: #164019; font-weight: 700; }
+  .item.active .dot { r: 11; }
+
+  .below-chart { max-width: 820px; margin: 22px auto 0; text-align: center; }
+  .below-chart p.sub {
+    color: var(--muted); font-size: 15px; line-height: 1.6; margin: 0 0 6px;
+  }
+  .below-chart p.sub b { color: var(--dark); }
+  .below-chart p.credit { font-size: 12.5px; color: #8a8a8a; margin-top: 10px; }
+  .below-chart p.credit a { color: #6a8f6a; }
+
+  .legend { margin: 26px auto 4px; max-width: 700px; }
+  .legend-bar {
+    display: flex; border-radius: 8px; overflow: hidden; min-height: 46px;
+    font-size: 13px; font-weight: 700; color: #fff; text-shadow: 0 1px 1px rgba(0,0,0,0.15);
+  }
+  .legend-bar div { flex: 1; display: flex; align-items: center; justify-content: center; text-align: center; padding: 6px 8px; }
+  .legend-bar .l1 { background: #cfe0ca; color: #3f4f3d; }
+  .legend-bar .l2 { background: #a9cda3; color: #223420; }
+  .legend-bar .l3 { background: #5c9c56; }
+  .legend-note { text-align: center; font-size: 13px; color: var(--muted); margin: 12px auto 0; max-width: 700px; line-height: 1.55; }
+  .legend-note b { color: #b8791f; }
+
+  #tooltip {
+    position: fixed; max-width: 340px; background: #1f3b26; color: #f2f5f0;
+    padding: 14px 16px; border-radius: 10px; font-size: 13px; line-height: 1.5;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25); display: none; z-index: 50; pointer-events: none;
+  }
+  #tooltip h3 { margin: 0 0 6px; font-size: 14.5px; color: #ffffff; }
+  #tooltip .row { margin-top: 6px; }
+  #tooltip .label { text-transform: uppercase; font-size: 10px; letter-spacing: 0.6px; color: #9fc19a; display: block; margin-bottom: 1px; }
+
+  footer { text-align: center; color: #9a9a9a; font-size: 11.5px; margin-top: 26px; }
+
+  @media (max-width: 700px) {
+    .item-label { font-size: 11px; }
+    .half-label { font-size: 14px; }
+    .legend-bar { font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Synergiradar – datakilder til mobilitet, trafik &amp; CO2-reduktion</h1>
+  </header>
+
+  <div class="chart-card">
+    <svg viewBox="0 0 2100 1140" xmlns="http://www.w3.org/2000/svg">
+<path d="M 1710.00 980.00 L 1709.10 945.46 L 1706.38 911.01 L 1701.87 876.75 L 1695.58 842.78 L 1687.51 809.18 L 1677.70 776.05 L 1666.16 743.48 L 1652.94 711.55 L 1638.06 680.37 L 1621.58 650.00 L 1603.52 620.54 L 1583.95 592.06 L 1562.92 564.65 L 1540.48 538.37 L 1516.69 513.31 L 1491.63 489.52 L 1465.35 467.08 L 1437.94 446.05 L 1409.46 426.48 L 1380.00 408.42 L 1349.63 391.94 L 1318.45 377.06 L 1286.52 363.84 L 1253.95 352.30 L 1220.82 342.49 L 1187.22 334.42 L 1153.25 328.13 L 1118.99 323.62 L 1084.54 320.90 L 1050.00 320.00 L 1015.46 320.90 L 981.01 323.62 L 946.75 328.13 L 912.78 334.42 L 879.18 342.49 L 846.05 352.30 L 813.48 363.84 L 781.55 377.06 L 750.37 391.94 L 720.00 408.42 L 690.54 426.48 L 662.06 446.05 L 634.65 467.08 L 608.37 489.52 L 583.31 513.31 L 559.52 538.37 L 537.08 564.65 L 516.05 592.06 L 496.48 620.54 L 478.42 650.00 L 461.94 680.37 L 447.06 711.55 L 433.84 743.48 L 422.30 776.05 L 412.49 809.18 L 404.42 842.78 L 398.13 876.75 L 393.62 911.01 L 390.90 945.46 L 390.00 980.00 L 580.00 980.00 L 580.64 955.40 L 582.57 930.87 L 585.79 906.48 L 590.27 882.28 L 596.01 858.36 L 603.00 834.76 L 611.22 811.57 L 620.63 788.83 L 631.23 766.62 L 642.97 745.00 L 655.82 724.02 L 669.76 703.74 L 684.74 684.22 L 700.72 665.51 L 717.66 647.66 L 735.51 630.72 L 754.22 614.74 L 773.74 599.76 L 794.02 585.82 L 815.00 572.97 L 836.62 561.23 L 858.83 550.63 L 881.57 541.22 L 904.76 533.00 L 928.36 526.01 L 952.28 520.27 L 976.48 515.79 L 1000.87 512.57 L 1025.40 510.64 L 1050.00 510.00 L 1074.60 510.64 L 1099.13 512.57 L 1123.52 515.79 L 1147.72 520.27 L 1171.64 526.01 L 1195.24 533.00 L 1218.43 541.22 L 1241.17 550.63 L 1263.38 561.23 L 1285.00 572.97 L 1305.98 585.82 L 1326.26 599.76 L 1345.78 614.74 L 1364.49 630.72 L 1382.34 647.66 L 1399.28 665.51 L 1415.26 684.22 L 1430.24 703.74 L 1444.18 724.02 L 1457.03 745.00 L 1468.77 766.62 L 1479.37 788.83 L 1488.78 811.57 L 1497.00 834.76 L 1503.99 858.36 L 1509.73 882.28 L 1514.21 906.48 L 1517.43 930.87 L 1519.36 955.40 L 1520.00 980.00 Z" fill="#e6efe2" stroke="#cddac7" stroke-width="1"/>
+<path d="M 1520.00 980.00 L 1519.36 955.40 L 1517.43 930.87 L 1514.21 906.48 L 1509.73 882.28 L 1503.99 858.36 L 1497.00 834.76 L 1488.78 811.57 L 1479.37 788.83 L 1468.77 766.62 L 1457.03 745.00 L 1444.18 724.02 L 1430.24 703.74 L 1415.26 684.22 L 1399.28 665.51 L 1382.34 647.66 L 1364.49 630.72 L 1345.78 614.74 L 1326.26 599.76 L 1305.98 585.82 L 1285.00 572.97 L 1263.38 561.23 L 1241.17 550.63 L 1218.43 541.22 L 1195.24 533.00 L 1171.64 526.01 L 1147.72 520.27 L 1123.52 515.79 L 1099.13 512.57 L 1074.60 510.64 L 1050.00 510.00 L 1025.40 510.64 L 1000.87 512.57 L 976.48 515.79 L 952.28 520.27 L 928.36 526.01 L 904.76 533.00 L 881.57 541.22 L 858.83 550.63 L 836.62 561.23 L 815.00 572.97 L 794.02 585.82 L 773.74 599.76 L 754.22 614.74 L 735.51 630.72 L 717.66 647.66 L 700.72 665.51 L 684.74 684.22 L 669.76 703.74 L 655.82 724.02 L 642.97 745.00 L 631.23 766.62 L 620.63 788.83 L 611.22 811.57 L 603.00 834.76 L 596.01 858.36 L 590.27 882.28 L 585.79 906.48 L 582.57 930.87 L 580.64 955.40 L 580.00 980.00 L 780.00 980.00 L 780.37 965.87 L 781.48 951.78 L 783.32 937.76 L 785.90 923.86 L 789.20 910.12 L 793.21 896.57 L 797.93 883.24 L 803.34 870.18 L 809.43 857.42 L 816.17 845.00 L 823.56 832.95 L 831.57 821.30 L 840.17 810.08 L 849.35 799.33 L 859.08 789.08 L 869.33 779.35 L 880.08 770.17 L 891.30 761.57 L 902.95 753.56 L 915.00 746.17 L 927.42 739.43 L 940.18 733.34 L 953.24 727.93 L 966.57 723.21 L 980.12 719.20 L 993.86 715.90 L 1007.76 713.32 L 1021.78 711.48 L 1035.87 710.37 L 1050.00 710.00 L 1064.13 710.37 L 1078.22 711.48 L 1092.24 713.32 L 1106.14 715.90 L 1119.88 719.20 L 1133.43 723.21 L 1146.76 727.93 L 1159.82 733.34 L 1172.58 739.43 L 1185.00 746.17 L 1197.05 753.56 L 1208.70 761.57 L 1219.92 770.17 L 1230.67 779.35 L 1240.92 789.08 L 1250.65 799.33 L 1259.83 810.08 L 1268.43 821.30 L 1276.44 832.95 L 1283.83 845.00 L 1290.57 857.42 L 1296.66 870.18 L 1302.07 883.24 L 1306.79 896.57 L 1310.80 910.12 L 1314.10 923.86 L 1316.68 937.76 L 1318.52 951.78 L 1319.63 965.87 L 1320.00 980.00 Z" fill="#a9cda3" stroke="#8fb989" stroke-width="1"/>
+<path d="M 1320.00 980.00 L 1319.63 965.87 L 1318.52 951.78 L 1316.68 937.76 L 1314.10 923.86 L 1310.80 910.12 L 1306.79 896.57 L 1302.07 883.24 L 1296.66 870.18 L 1290.57 857.42 L 1283.83 845.00 L 1276.44 832.95 L 1268.43 821.30 L 1259.83 810.08 L 1250.65 799.33 L 1240.92 789.08 L 1230.67 779.35 L 1219.92 770.17 L 1208.70 761.57 L 1197.05 753.56 L 1185.00 746.17 L 1172.58 739.43 L 1159.82 733.34 L 1146.76 727.93 L 1133.43 723.21 L 1119.88 719.20 L 1106.14 715.90 L 1092.24 713.32 L 1078.22 711.48 L 1064.13 710.37 L 1050.00 710.00 L 1035.87 710.37 L 1021.78 711.48 L 1007.76 713.32 L 993.86 715.90 L 980.12 719.20 L 966.57 723.21 L 953.24 727.93 L 940.18 733.34 L 927.42 739.43 L 915.00 746.17 L 902.95 753.56 L 891.30 761.57 L 880.08 770.17 L 869.33 779.35 L 859.08 789.08 L 849.35 799.33 L 840.17 810.08 L 831.57 821.30 L 823.56 832.95 L 816.17 845.00 L 809.43 857.42 L 803.34 870.18 L 797.93 883.24 L 793.21 896.57 L 789.20 910.12 L 785.90 923.86 L 783.32 937.76 L 781.48 951.78 L 780.37 965.87 L 780.00 980.00 L 980.00 980.00 L 980.10 976.34 L 980.38 972.68 L 980.86 969.05 L 981.53 965.45 L 982.39 961.88 L 983.43 958.37 L 984.65 954.91 L 986.05 951.53 L 987.63 948.22 L 989.38 945.00 L 991.29 941.88 L 993.37 938.86 L 995.60 935.95 L 997.98 933.16 L 1000.50 930.50 L 1003.16 927.98 L 1005.95 925.60 L 1008.86 923.37 L 1011.88 921.29 L 1015.00 919.38 L 1018.22 917.63 L 1021.53 916.05 L 1024.91 914.65 L 1028.37 913.43 L 1031.88 912.39 L 1035.45 911.53 L 1039.05 910.86 L 1042.68 910.38 L 1046.34 910.10 L 1050.00 910.00 L 1053.66 910.10 L 1057.32 910.38 L 1060.95 910.86 L 1064.55 911.53 L 1068.12 912.39 L 1071.63 913.43 L 1075.09 914.65 L 1078.47 916.05 L 1081.78 917.63 L 1085.00 919.38 L 1088.12 921.29 L 1091.14 923.37 L 1094.05 925.60 L 1096.84 927.98 L 1099.50 930.50 L 1102.02 933.16 L 1104.40 935.95 L 1106.63 938.86 L 1108.71 941.88 L 1110.62 945.00 L 1112.37 948.22 L 1113.95 951.53 L 1115.35 954.91 L 1116.57 958.37 L 1117.61 961.88 L 1118.47 965.45 L 1119.14 969.05 L 1119.62 972.68 L 1119.90 976.34 L 1120.00 980.00 Z" fill="#5c9c56" stroke="#4a8244" stroke-width="1"/>
+<line x1="1050" y1="996" x2="1050.00" y2="320.00" stroke="#3c3c3c" stroke-width="1.5"/>
+<path id="rightGuide" d="M 1392.02 40.31 L 1412.44 47.99 L 1432.68 56.12 L 1452.75 64.69 L 1472.62 73.69 L 1492.29 83.13 L 1511.75 92.99 L 1530.99 103.27 L 1550.00 113.97 L 1568.77 125.09 L 1587.30 136.61 L 1605.57 148.53 L 1623.58 160.85 L 1641.31 173.56 L 1658.76 186.65 L 1675.92 200.12 L 1692.79 213.96 L 1709.35 228.16 L 1725.59 242.72 L 1741.51 257.64 L 1757.11 272.89 L 1772.36 288.49 L 1787.28 304.41 L 1801.84 320.65 L 1816.04 337.21 L 1829.88 354.08 L 1843.35 371.24 L 1856.44 388.69 L 1869.15 406.42 L 1881.47 424.43 L 1893.39 442.70 L 1904.91 461.23 L 1916.03 480.00 L 1926.73 499.01 L 1937.01 518.25 L 1946.87 537.71 L 1956.31 557.38 L 1965.31 577.25 L 1973.88 597.32 L 1982.01 617.56 L 1989.69 637.98" fill="none" stroke="none"/>
+<path id="leftGuide" d="M 110.31 637.98 L 117.99 617.56 L 126.12 597.32 L 134.69 577.25 L 143.69 557.38 L 153.13 537.71 L 162.99 518.25 L 173.27 499.01 L 183.97 480.00 L 195.09 461.23 L 206.61 442.70 L 218.53 424.43 L 230.85 406.42 L 243.56 388.69 L 256.65 371.24 L 270.12 354.08 L 283.96 337.21 L 298.16 320.65 L 312.72 304.41 L 327.64 288.49 L 342.89 272.89 L 358.49 257.64 L 374.41 242.72 L 390.65 228.16 L 407.21 213.96 L 424.08 200.12 L 441.24 186.65 L 458.69 173.56 L 476.42 160.85 L 494.43 148.53 L 512.70 136.61 L 531.23 125.09 L 550.00 113.97 L 569.01 103.27 L 588.25 92.99 L 607.71 83.13 L 627.38 73.69 L 647.25 64.69 L 667.32 56.12 L 687.56 47.99 L 707.98 40.31" fill="none" stroke="none"/>
+<text class="half-label"><textPath href="#rightGuide" startOffset="50%" text-anchor="middle">MOBILITET &amp; TRAFIKDATA</textPath></text>
+<text class="half-label"><textPath href="#leftGuide" startOffset="50%" text-anchor="middle">KLIMA &amp; CO2-REGNSKABER</textPath></text>
+<g class="item" id="item0" data-name="Mastra" data-anvendes="Opsamling og udstilling af trafiktællinger og hastighedsmålinger" data-type="Trafiktal: ÅDT/HDT, hastighedsfordeling, køretøjsklassifikation" data-fag="trafikplanlægning, mobilitet" data-bem="Fælles it-system ejet af Vejdirektoratet. Data fra ca. 65 kommuner delt som åbne data via Open Data DK." data-bridge="false">
+  <line x1="1417.97" y1="941.32" x2="1517.43" y2="930.87" class="leader"/>
+  <line x1="1517.43" y1="930.87" x2="1736.22" y2="907.88" class="leader thin"/>
+  <circle cx="1417.97" cy="941.32" r="7.5" class="dot ring2"/>
+  <text x="1736.22" y="907.88" text-anchor="start" class="item-label" transform="rotate(-6.00 1736.22 907.88)">Mastra</text>
+</g>
+<g class="item" id="item1" data-name="IoT-sensorer (SmartCity) og digitale enheder" data-anvendes="Realtidsdata om trafik, hastigheder, parkering og bymiljø" data-type="Sensordata via LoRaWAN/NB-IoT" data-fag="trafikplanlægning, mobilitet, vand" data-bem="Indsamlet og formidlet videre i GIS og dashboards i kommunens eget IT-miljø." data-bridge="false">
+  <line x1="1217.67" y1="951.94" x2="1316.30" y2="935.44" class="leader"/>
+  <line x1="1316.30" y1="935.44" x2="1809.44" y2="852.91" class="leader thin"/>
+  <circle cx="1217.67" cy="951.94" r="7.5" class="dot ring3"/>
+  <text x="1809.44" y="852.91" text-anchor="start" class="item-label" transform="rotate(-9.50 1809.44 852.91)">IoT-sensorer (SmartCity)</text>
+</g>
+<g class="item" id="item2" data-name="DTU&#x27;s Transportvaneundersøgelse (TU)" data-anvendes="Benchmark af borgernes transportvaner: transportmiddel, rejselængde, formål" data-type="Survey-/interviewdata om rejser (individniveau)" data-fag="trafikplanlægning, mobilitet" data-bem="Udføres af DTU Management. Kan suppleres med kommunespecifik bestillingsundersøgelse." data-bridge="false">
+  <line x1="1410.38" y1="896.20" x2="1507.79" y2="873.55" class="leader"/>
+  <line x1="1507.79" y1="873.55" x2="1877.91" y2="787.48" class="leader thin"/>
+  <circle cx="1410.38" cy="896.20" r="7.5" class="dot ring2"/>
+  <text x="1877.91" y="787.48" text-anchor="start" class="item-label" transform="rotate(-13.09 1877.91 787.48)">Transportvaneundersøgelsen (TU)</text>
+</g>
+<g class="item" id="item3" data-name="Vejman.dk / RoSy" data-anvendes="Kommunalt vejforvaltningssystem: vejnet, belægning, vejudstyr" data-type="Vejnets- og tilstandsdata, drifts-/vedligeholdshistorik" data-fag="trafikplanlægning" data-bem="De mest udbredte vejforvaltningssystemer i danske kommuner. Kan udveksle data med Mastra." data-bridge="false">
+  <line x1="1591.73" y1="819.53" x2="1682.82" y2="792.55" class="leader"/>
+  <line x1="1682.82" y1="792.55" x2="1941.70" y2="715.87" class="leader thin"/>
+  <circle cx="1591.73" cy="819.53" r="7.5" class="dot ring1"/>
+  <text x="1941.70" y="715.87" text-anchor="start" class="item-label" transform="rotate(-16.50 1941.70 715.87)">Vejman.dk / RoSy</text>
+</g>
+<g class="item" id="item4" data-name="Mobildata (Telia Insights, Candy Crush m.fl.)" data-anvendes="Bevægelsesmønstre i byrum og på tværs af kommunen" data-type="Anonymiseret/aggregeret mobilpositionsdata, OD-matricer" data-fag="trafikplanlægning, mobilitet" data-bem="Kommercielt tilkøbt data. Underlagt GDPR-krav om anonymisering." data-bridge="false">
+  <line x1="1397.28" y1="852.35" x2="1491.14" y2="817.85" class="leader"/>
+  <line x1="1491.14" y1="817.85" x2="1697.64" y2="741.95" class="leader thin"/>
+  <circle cx="1397.28" cy="852.35" r="7.5" class="dot ring2"/>
+  <text x="1697.64" y="741.95" text-anchor="start" class="item-label" transform="rotate(-20.18 1697.64 741.95)">Mobildata (Telia m.fl.)</text>
+</g>
+<g class="item" id="item5" data-name="Droneoptagelser" data-anvendes="Bevægelsesmønstre, differentiering af trafikanter, trafiktællinger" data-type="Video-/billeddata efterbehandlet til trafikantklasser" data-fag="trafikplanlægning, mobilitet" data-bem="Anvendes til korte, punktvise registreringer, fx i komplekse kryds." data-bridge="false">
+  <line x1="1378.87" y1="810.46" x2="1467.75" y2="764.63" class="leader"/>
+  <line x1="1467.75" y1="764.63" x2="1734.40" y2="627.17" class="leader thin"/>
+  <circle cx="1378.87" cy="810.46" r="7.5" class="dot ring2"/>
+  <text x="1734.40" y="627.17" text-anchor="start" class="item-label" transform="rotate(-27.27 1734.40 627.17)">Droneoptagelser</text>
+</g>
+<g class="item" id="item6" data-name="Rejsekortsdata" data-anvendes="Data på rejser i den kollektive trafik" data-type="Check-in/check-out, rejse-OD-par, på-/afstigningstal" data-fag="trafikplanlægning, mobilitet" data-bem="Ejes af Rejsekort &amp; Rejseplan A/S; adgang kræver aftale." data-bridge="false">
+  <line x1="1355.42" y1="771.16" x2="1437.97" y2="714.71" class="leader"/>
+  <line x1="1437.97" y1="714.71" x2="1751.65" y2="500.22" class="leader thin"/>
+  <circle cx="1355.42" cy="771.16" r="7.5" class="dot ring2"/>
+  <text x="1751.65" y="500.22" text-anchor="start" class="item-label" transform="rotate(-34.36 1751.65 500.22)">Rejsekortsdata</text>
+</g>
+<g class="item" id="item7" data-name="Landstrafikmodellen / Green Mobility Model (GMM)" data-anvendes="National trafikmodel til konsekvensberegning af infrastruktur og trafikpolitik" data-type="Modelberegnet trafik, emissions- og støjberegning (ENVI)" data-fag="trafikplanlægning, mobilitet, CO2-udledning" data-bem="Udviklet af Vejdirektoratet/DTU Transport. Tidligere navn: LTM. Bygger bro mellem trafik- og klimadata." data-bridge="true">
+  <line x1="1188.40" y1="881.28" x2="1269.81" y2="823.21" class="leader"/>
+  <line x1="1269.81" y1="823.21" x2="1807.13" y2="439.95" class="leader thin"/>
+  <circle cx="1188.40" cy="881.28" r="9" class="dot ring3 bridge"/>
+  <text x="1807.13" y="439.95" text-anchor="start" class="item-label" transform="rotate(-35.50 1807.13 439.95)">Landstrafikmodellen (GMM)</text>
+</g>
+<g class="item" id="item8" data-name="Google Maps API" data-anvendes="Trafikflow og rejsetider" data-type="Realtids- og historisk rejsetids-/trængselsdata" data-fag="trafikplanlægning, mobilitet" data-bem="Kommercielt API. Velegnet til rejsetidsanalyser frem for absolutte mængder." data-bridge="false">
+  <line x1="1327.31" y1="735.05" x2="1402.26" y2="668.85" class="leader"/>
+  <line x1="1402.26" y1="668.85" x2="1567.14" y2="523.20" class="leader thin"/>
+  <circle cx="1327.31" cy="735.05" r="7.5" class="dot ring2"/>
+  <text x="1567.14" y="523.20" text-anchor="start" class="item-label" transform="rotate(-41.45 1567.14 523.20)">Google Maps API</text>
+</g>
+<g class="item" id="item9" data-name="ITS (Intelligente Transport Systemer)" data-anvendes="Samkørende signalanlæg der prioriterer busser/cyklister og reducerer trængsel" data-type="Realtids detektor- og signalanlægsdata" data-fag="trafikplanlægning, mobilitet" data-bem="Anvendes bl.a. i Aarhus, Odense og København til adaptiv signalstyring." data-bridge="false">
+  <line x1="1294.95" y1="702.69" x2="1361.15" y2="627.74" class="leader"/>
+  <line x1="1361.15" y1="627.74" x2="1559.76" y2="402.90" class="leader thin"/>
+  <circle cx="1294.95" cy="702.69" r="7.5" class="dot ring2"/>
+  <text x="1559.76" y="402.90" text-anchor="start" class="item-label" transform="rotate(-48.55 1559.76 402.90)">ITS</text>
+</g>
+<g class="item" id="item10" data-name="Trafiktællinger og hastighedsmålinger" data-anvendes="Løbende registrering af ÅDT og hastigheder" data-type="Rå og efterbehandlede tælledata" data-fag="trafikplanlægning, mobilitet" data-bem="Indsamles med slangetællere, radar eller video; fødes ofte ind i Mastra." data-bridge="false">
+  <line x1="1258.84" y1="674.58" x2="1315.29" y2="592.03" class="leader"/>
+  <line x1="1315.29" y1="592.03" x2="1529.78" y2="278.35" class="leader thin"/>
+  <circle cx="1258.84" cy="674.58" r="7.5" class="dot ring2"/>
+  <text x="1529.78" y="278.35" text-anchor="start" class="item-label" transform="rotate(-55.64 1529.78 278.35)">Trafiktællinger</text>
+</g>
+<g class="item" id="item11" data-name="Danmarks Statistik - Statistikbanken (pendling og bilpark)" data-anvendes="Pendlingsmønstre og bilbestand/drivmiddelfordeling" data-type="Registerbaseret statistik på kommune-/sogneniveau" data-fag="trafikplanlægning, mobilitet, CO2-udledning" data-bem="Frit tilgængelig via api.statbank.dk. Bilparkdata trækker på Danmarks Motorregister." data-bridge="true">
+  <line x1="1131.12" y1="830.60" x2="1178.83" y2="742.72" class="leader"/>
+  <line x1="1178.83" y1="742.72" x2="1493.76" y2="162.70" class="leader thin"/>
+  <circle cx="1131.12" cy="830.60" r="9" class="dot ring3 bridge"/>
+  <text x="1493.76" y="162.70" text-anchor="start" class="item-label" transform="rotate(-60.00 1493.76 162.70)">DST Statistikbanken</text>
+</g>
+<g class="item" id="item12" data-name="Strava Metro" data-anvendes="Anonymiseret cykel-/løberute-data til cykelstiplanlægning" data-type="Aggregerede GPS-spor og rutehyppighed" data-fag="trafikplanlægning, mobilitet" data-bem="Gratis for myndigheder, men skævt mod motionister - suppler med fysiske tællinger." data-bridge="false">
+  <line x1="1219.54" y1="651.13" x2="1265.37" y2="562.25" class="leader"/>
+  <line x1="1265.37" y1="562.25" x2="1366.18" y2="366.70" class="leader thin"/>
+  <circle cx="1219.54" cy="651.13" r="7.5" class="dot ring2"/>
+  <text x="1366.18" y="366.70" text-anchor="start" class="item-label" transform="rotate(-60.00 1366.18 366.70)">Strava Metro</text>
+</g>
+<g class="item" id="item13" data-name="Delebilsdata (GreenMobility, Share Now m.fl.)" data-anvendes="Anvendelses- og placeringsdata for delebiler" data-type="Ture, stopmønstre og udnyttelsesgrad" data-fag="mobilitet" data-bem="Kræver samarbejdsaftale med operatøren. Bruges til at vurdere effekt på privatbilejerskab." data-bridge="false">
+  <line x1="1275.29" y1="461.86" x2="1313.17" y2="374.74" class="leader"/>
+  <line x1="1313.17" y1="374.74" x2="1357.04" y2="273.86" class="leader thin"/>
+  <circle cx="1275.29" cy="461.86" r="7.5" class="dot ring1"/>
+  <text x="1357.04" y="273.86" text-anchor="start" class="item-label" transform="rotate(-60.00 1357.04 273.86)">Delebilsdata</text>
+</g>
+<g class="item" id="item14" data-name="Rejseplanen / GTFS-data for kollektiv trafik" data-anvendes="Køreplandata til rejseplanlægning og dækningsanalyser" data-type="Statiske og realtids GTFS-feeds (General Transit Feed Specification)" data-fag="trafikplanlægning, mobilitet" data-bem="Rejseplanen A/S stiller data til rådighed for udviklere/myndigheder." data-bridge="false">
+  <line x1="1177.65" y1="632.72" x2="1212.15" y2="538.86" class="leader"/>
+  <line x1="1212.15" y1="538.86" x2="1343.25" y2="182.19" class="leader thin"/>
+  <circle cx="1177.65" cy="632.72" r="7.5" class="dot ring2"/>
+  <text x="1343.25" y="182.19" text-anchor="start" class="item-label" transform="rotate(-60.00 1343.25 182.19)">Rejseplanen / GTFS</text>
+</g>
+<g class="item" id="item15" data-name="Parkeringsdata (ApcoaFlow, ParkPnP m.fl.)" data-anvendes="Belægningsgrader for offentlige parkeringsanlæg" data-type="Realtids- eller periodiske belægningsdata" data-fag="trafikplanlægning, mobilitet" data-bem="Ejes typisk af operatør/kommune. Kombineres ofte med IoT-sensorer i p-huse." data-bridge="false">
+  <line x1="1133.80" y1="619.62" x2="1156.45" y2="522.21" class="leader"/>
+  <line x1="1156.45" y1="522.21" x2="1260.64" y2="74.17" class="leader thin"/>
+  <circle cx="1133.80" cy="619.62" r="7.5" class="dot ring2"/>
+  <text x="1260.64" y="74.17" text-anchor="start" class="item-label" transform="rotate(-60.00 1260.64 74.17)">Parkeringsdata</text>
+</g>
+<g class="item" id="item16" data-name="OpenStreetMap (OSM) med ruteberegning (GraphHopper/OpenRouteService)" data-anvendes="Åbne kort- og vejnetsdata til rute- og tilgængelighedsanalyser" data-type="Åbent geodata (veje, stier, POI&#x27;er)" data-fag="trafikplanlægning, mobilitet" data-bem="Gratis alternativ til kommercielle API&#x27;er - bør valideres mod officielle kilder." data-bridge="false">
+  <line x1="1088.68" y1="612.03" x2="1099.13" y2="512.57" class="leader"/>
+  <line x1="1099.13" y1="512.57" x2="1122.12" y2="293.78" class="leader thin"/>
+  <circle cx="1088.68" cy="612.03" r="7.5" class="dot ring2"/>
+  <text x="1122.12" y="293.78" text-anchor="start" class="item-label" transform="rotate(-60.00 1122.12 293.78)">OSM + GraphHopper/ORS</text>
+</g>
+<g class="item" id="item17" data-name="Kommercielle trafikmodeller (VISUM, Aimsun, Vissim m.fl.)" data-anvendes="Detaljerede lokale/regionale trafiksimuleringer" data-type="Modelinput/-output: rejsetider, kølængder, emissioner" data-fag="trafikplanlægning, mobilitet, CO2-udledning" data-bem="Anvendes typisk af rådgivere, kalibreret med data fra Mastra, TU og Landstrafikmodellen." data-bridge="true">
+  <line x1="1057.42" y1="810.16" x2="1061.78" y2="710.26" class="leader"/>
+  <line x1="1061.78" y1="710.26" x2="1083.59" y2="210.73" class="leader thin"/>
+  <circle cx="1057.42" cy="810.16" r="9" class="dot ring3 bridge"/>
+  <text x="1083.59" y="210.73" text-anchor="start" class="item-label" transform="rotate(-60.00 1083.59 210.73)">Trafiksimuleringer (VISUM m.fl.)</text>
+</g>
+<g class="item" id="item18" data-name="Energistyrelsens Energi- og CO2-regnskab" data-anvendes="Det primære nationale værktøj til kommunernes årlige klimaregnskaber" data-type="Kommunespecifikke energi- og emissionsdata (GPC-standard)" data-fag="klimaregnskaber, CO2-udledning" data-bem="Ejet af Energistyrelsen i samarbejde med KL og Realdania. Afløste i 2019 den tidligere CO2-beregner fra 2008." data-bridge="false">
+  <line x1="998.51" y1="613.60" x2="984.59" y2="514.57" class="leader"/>
+  <line x1="984.59" y1="514.57" x2="953.97" y2="296.72" class="leader thin"/>
+  <circle cx="998.51" cy="613.60" r="7.5" class="dot ring2"/>
+  <text x="953.97" y="296.72" text-anchor="end" class="item-label" transform="rotate(60.00 953.97 296.72)">Energi- og CO2-regnskabet</text>
+</g>
+<g class="item" id="item19" data-name="DK2020-metoden" data-anvendes="Fælles metodisk ramme for klimahandleplaner ift. Parisaftalen" data-type="Metode/rapporteringsstandard (ikke et datasæt)" data-fag="CO2-udledning" data-bem="Partnerskab mellem Realdania, KL, regionerne og CONCITO/C40. De fleste af landets kommuner deltager." data-bridge="false">
+  <line x1="908.54" y1="433.00" x2="884.75" y2="341.02" class="leader"/>
+  <line x1="884.75" y1="341.02" x2="857.21" y2="234.53" class="leader thin"/>
+  <circle cx="908.54" cy="433.00" r="7.5" class="dot ring1"/>
+  <text x="857.21" y="234.53" text-anchor="end" class="item-label" transform="rotate(60.00 857.21 234.53)">DK2020-metoden</text>
+</g>
+<g class="item" id="item20" data-name="LCA (Life Cycle Assessment / Livscyklusanalyser)" data-anvendes="Beregning af miljøbelastning for byggeprojekter" data-type="Materialedata (EPD&#x27;er), CO2e pr. bygningsdel" data-fag="klimaregnskaber, CO2-udledning" data-bem="Udføres typisk med LCAbyg (BUILD, AAU). Lovkrav ved nybyggeri (BR18/BR23)." data-bridge="false">
+  <line x1="884.91" y1="648.87" x2="840.29" y2="559.38" class="leader"/>
+  <line x1="840.29" y1="559.38" x2="670.73" y2="219.31" class="leader thin"/>
+  <circle cx="884.91" cy="648.87" r="7.5" class="dot ring2"/>
+  <text x="670.73" y="219.31" text-anchor="end" class="item-label" transform="rotate(60.00 670.73 219.31)">LCA (Livscyklusanalyser)</text>
+</g>
+<g class="item" id="item21" data-name="Klimakompasset / Fælles national CO2-beregner" data-anvendes="Systematiske opgørelser af klimaindsatsen, ofte med konsulentstøtte" data-type="Aggregerede emissions- og fremskrivningsdata" data-fag="klimaregnskaber, CO2-udledning" data-bem="&#x27;Klimakompasset&#x27; er primært for virksomheder; kommunernes værktøj er reelt Energi- og CO2-regnskabet." data-bridge="false">
+  <line x1="788.37" y1="718.37" x2="717.66" y2="647.66" class="leader"/>
+  <line x1="717.66" y1="647.66" x2="392.39" y2="322.39" class="leader thin"/>
+  <circle cx="788.37" cy="718.37" r="7.5" class="dot ring2"/>
+  <text x="392.39" y="322.39" text-anchor="end" class="item-label" transform="rotate(45.00 392.39 322.39)">Klimakompasset</text>
+</g>
+<g class="item" id="item22" data-name="Danmarks Motorregister (DMR)" data-anvendes="Detaljerede data om den registrerede bilpark" data-type="Registerdata pr. køretøj (anonymiseret)" data-fag="CO2-udledning, mobilitet" data-bem="Administreres af Motorstyrelsen. Grundlag for analyser af elbilandel." data-bridge="true">
+  <line x1="718.87" y1="814.91" x2="629.38" y2="770.29" class="leader"/>
+  <line x1="629.38" y1="770.29" x2="432.50" y2="672.12" class="leader thin"/>
+  <circle cx="718.87" cy="814.91" r="9" class="dot ring2 bridge"/>
+  <text x="432.50" y="672.12" text-anchor="end" class="item-label" transform="rotate(26.50 432.50 672.12)">Danmarks Motorregister</text>
+</g>
+<g class="item" id="item23" data-name="GeoFA - Offentligt tilgængelige ladestandere" data-anvendes="Overblik over placering, effekt og status for ladestandere" data-type="Geografiske punktdata, indberettet af operatører" data-fag="CO2-udledning, mobilitet" data-bem="Register under SDFI, etableret efter AFI-loven (2022). Suppleres ofte af operatørdata." data-bridge="true">
+  <line x1="683.60" y1="928.51" x2="584.57" y2="914.59" class="leader"/>
+  <line x1="584.57" y1="914.59" x2="287.49" y2="872.84" class="leader thin"/>
+  <circle cx="683.60" cy="928.51" r="9" class="dot ring2 bridge"/>
+  <text x="287.49" y="872.84" text-anchor="end" class="item-label" transform="rotate(8.00 287.49 872.84)">Ladestanderregister (GeoFA)</text>
+</g>
+    </svg>
+  </div>
+
+  <div class="below-chart">
+    <p class="sub">
+      Kortlægning af værktøjer og datakilder, som danske kommuner anvender inden for trafikanalyser,
+      mobilitetsplanlægning og CO2-reduktion. Hver halvdel viser kildens primære hjemmedomæne.
+      Afstanden til centrum – <b>synergibarometeret</b> – viser, hvor mange fagområder kilden dækker
+      ifølge kolonnen "Primær fagområde" i kortlægningen: jo tættere på centrum, jo flere fagområder
+      krydser kilden, og jo større er det tværfaglige potentiale.
+    </p>
+    <p class="credit">Inspireret af opbygningen i <a href="https://videncenter.kl.dk/teknologier/kommunernes-teknologiradar-2026/kommunernes-teknologiradar-2026" target="_blank" rel="noopener">KL's Teknologiradar 2026</a>. Hold musen over eller klik på et punkt for detaljer.</p>
+  </div>
+
+  <div class="legend">
+    <div class="legend-bar">
+      <div class="l1">1 FAGOMRÅDE<br>Enkeltfagligt</div>
+      <div class="l2">2 FAGOMRÅDER<br>Delt anvendelse</div>
+      <div class="l3">3 FAGOMRÅDER<br>Tværfagligt</div>
+    </div>
+    <p class="legend-note">
+      Jo mørkere/inderste ring, jo flere fagområder krydser kilden – og jo større er det tværfaglige
+      synergipotentiale. Punkter med <b>gul ring</b> (fx Landstrafikmodellen/GMM, DST Statistikbanken,
+      Danmarks Motorregister, Ladestanderregister og Trafiksimuleringer) er kilder, der allerede i dag
+      bygger bro mellem mobilitets- og klimadata på tværs af skillelinjen.
+    </p>
+  </div>
+
+  <footer>Udarbejdet af Gate 21 på baggrund af intern datakilde-kortlægning · Opdateret 10.09.2026</footer>
+</div>
+
+<div id="tooltip"></div>
+
+<script>
+  const tooltip = document.getElementById('tooltip');
+  let activeEl = null;
+
+  function showTooltip(el, evt) {
+    const d = el.dataset;
+    const bridgeNote = d.bridge === 'true'
+      ? '<div class="row"><span class="label">Bemærk</span>Bygger bro mellem mobilitets- og klimadata.</div>' : '';
+    tooltip.innerHTML = `
+      <h3>${d.name}</h3>
+      <div class="row"><span class="label">Anvendes til</span>${d.anvendes}</div>
+      <div class="row"><span class="label">Type data</span>${d.type}</div>
+      <div class="row"><span class="label">Primær fagområde</span>${d.fag}</div>
+      <div class="row"><span class="label">Bemærkninger</span>${d.bem}</div>
+      ${bridgeNote}
+    `;
+    tooltip.style.display = 'block';
+    positionTooltip(evt);
+  }
+
+  function positionTooltip(evt) {
+    const pad = 16;
+    let x = evt.clientX + pad;
+    let y = evt.clientY + pad;
+    const tw = 340, th = 210;
+    if (x + tw > window.innerWidth) x = evt.clientX - tw - pad;
+    if (y + th > window.innerHeight) y = evt.clientY - th - pad;
+    tooltip.style.left = x + 'px';
+    tooltip.style.top = y + 'px';
+  }
+
+  document.querySelectorAll('.item').forEach(el => {
+    el.addEventListener('mouseenter', (e) => { showTooltip(el, e); });
+    el.addEventListener('mousemove', (e) => { positionTooltip(e); });
+    el.addEventListener('mouseleave', () => { if (activeEl !== el) tooltip.style.display = 'none'; });
+    el.addEventListener('click', (e) => {
+      if (activeEl === el) {
+        activeEl.classList.remove('active'); activeEl = null; tooltip.style.display = 'none';
+      } else {
+        if (activeEl) activeEl.classList.remove('active');
+        activeEl = el; el.classList.add('active'); showTooltip(el, e);
+      }
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    if (activeEl && !activeEl.contains(e.target)) {
+      activeEl.classList.remove('active'); activeEl = null; tooltip.style.display = 'none';
+    }
+  });
+</script>
+</body>
+</html>
